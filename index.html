@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+
+{q:"NITI Aayog released the 2nd edition of the India Electric Mobility Index (IEMI) 2025, assessing 36 States/UTs for their e-mobility transition during January–December 2025. Which state topped the overall IEMI 2025 ranking with a score of 84?", options:["Maharashtra","Delhi","Karnataka","Tamil Nadu"], answer:1},
+
+{q:"The India Electric Mobility Index (IEMI) 2025 was developed by NITI Aayog in partnership with the World Resources Institute (WRI) India and uses 16 indicators across three themes. Which of the following correctly represents the weightage assigned to the three themes?", options:["Transport Electrification Progress – 50%; Charging Infrastructure Readiness – 30%; EV Research & Innovation – 20%","Transport Electrification Progress – 40%; Charging Infrastructure Readiness – 35%; EV Research & Innovation – 25%","Transport Electrification Progress – 50%; Charging Infrastructure Readiness – 20%; EV Research & Innovation – 30%","Transport Electrification Progress – 30%; Charging Infrastructure Readiness – 50%; EV Research & Innovation – 20%"], answer:0},
+
+{q:"In the 2nd edition of the India Electric Mobility Index (IEMI) 2025, Delhi secured the first position with 84 points, followed by Maharashtra with 78 and Karnataka with 73. What was Delhi's score in the previous edition of the index?", options:["73","75","77","79"], answer:2},
+
+{q:"The Registration of Births and Deaths (RBD) Amendment Act, 2026 (Act No. 12 of 2026) has been notified to come into force from 1 October 2026 and amends Section 13(3) of the Registration of Births and Deaths Act, 1969, as amended in 2023. Who is the Registrar General & Census Commissioner of India (RG&CCI) associated with this notification?", options:["Ashok Kumar Lahiri","Mrityunjay Kumar Narayan","Astik Kumar Pandey","Pankaj Narula"], answer:1},
+
+{q:"Under the Registration of Births and Deaths (RBD) Amendment Act, 2026, births, deaths and stillbirths are generally required to be reported within 21 days, while delayed registration is subject to different approval requirements. What is required when registration is delayed beyond 1 year but is made within 2 years?", options:["Order of Judicial Magistrate First Class (JMFC) only","Approval of the District Magistrate/Sub-Divisional Magistrate/authorised Executive Magistrate with verification and prescribed fee","Approval of the Registrar General & Census Commissioner of India without any fee","Approval of the Ministry of Home Affairs after verification by the State Government"], answer:1},
+
+{q:"The Union Cabinet chaired by Prime Minister Narendra Modi approved an increase in the mandatory Employees' Provident Fund Organisation (EPFO) coverage wage ceiling from ₹15,000 to ₹25,000 per month under the Ministry of Labour & Employment. From which date was this change made effective?", options:["1 January 2026","15 August 2026","17 September 2026","2 October 2026"], answer:2},
+
+{q:"Following the Union Cabinet's approval to increase the EPFO mandatory coverage wage ceiling from ₹15,000 to ₹25,000 per month, employees earning ₹15,000–₹25,000 who were previously outside mandatory coverage will receive statutory social-security coverage. Which set of schemes is specifically included?", options:["EPF, EPS and EDLI","NPS, APY and PM-SYM","EPF, NPS and PMJJBY","EPS, NPS and PMSBY"], answer:0},
+
+{q:"Along with the increase in the Employees' Provident Fund Organisation (EPFO) wage ceiling from ₹15,000 to ₹25,000, the monthly pension contribution cap under the Employees' Pension Scheme (EPS) was also increased. What is the revised EPS contribution cap?", options:["₹1,500","₹1,750","₹2,080","₹2,500"], answer:2},
+
+{q:"The Ministry of Petroleum & Natural Gas (MoPNG) issued component-wise operational guidelines for the GOBARdhan scheme, or Galvanizing Organic Bio-Agro Resources Dhan, to strengthen India's Compressed Biogas (CBG) ecosystem. Which of the following is NOT one of the six components mentioned in the guidelines?", options:["CBG Offtake Assurance","CBG Pricing Framework","Credit Guarantee Support","Electric Vehicle Purchase Subsidy"], answer:3},
+
+{q:"Under the GOBARdhan guidelines issued by the Ministry of Petroleum & Natural Gas (MoPNG), the government assured full offtake of saleable Compressed Biogas (CBG), subject to technical and operational feasibility. What is the CBG Purchase Obligation prescribed for City Gas Distribution (CGD) companies from FY29 onwards?", options:["3%","4%","5%","10%"], answer:2},
+
+{q:"The GOBARdhan operational guidelines provide an Administered CBG Price (ACP) of ₹2,110/MMBTU, approximately ₹98/kg at 95% methane, excluding taxes and compression charges. Up to what date is this price fixed unless modified or extended?", options:["31 March 2030","31 March 2034","31 March 2035","31 March 2036"], answer:3},
+
+{q:"Under the financial assistance framework of the GOBARdhan scheme, new Compressed Biogas (CBG) plants are eligible for assistance of ₹1.25 crore per TPD, subject to a maximum per project. What is the maximum assistance available for a new CBG plant?", options:["₹5 crore per project","₹10 crore per project","₹25 crore per project","₹30 crore per project"], answer:3},
+
+{q:"Swachhata Hi Seva (SHS) 2026 was launched nationwide by the Ministry of Housing & Urban Affairs (MoHUA) and the Department of Drinking Water & Sanitation (DDWS), Ministry of Jal Shakti. The campaign will run from 17 September to 2 October 2026 and culminate on Gandhi Jayanti. What is the theme of SHS 2026?", options:["Swachhata Se Samriddhi, Swachh Bharat Abhiyaan","Swachhata Mein Sahbhag; Swachh Bharat, Viksit Bharat","Swachh Bharat, Swasth Bharat; Jan Bhagidari","Swachhata Hi Seva; Viksit Bharat, Swachh Bharat"], answer:1},
+
+{q:"Swachhata Hi Seva (SHS) 2026 is organised around five pillars, including Cleanliness Target Units (CTUs) & Clean Public Places, Swachh Paathshala – Yuva for Swachhata, SafaiMitra Suraksha Evam Samman Shivir and Jan Bhagidari for Swachhata. Which is the fifth pillar?", options:["Swachhata Se Samriddhi","Swachhata Se Rozgar","Swachhata for Sustainable Development","Swachh Gram, Swachh Nagar"], answer:0},
+
+{q:"NITI Aayog released the 9th edition of its Trade Watch Quarterly (TWQ), titled 'Thematic Analysis: Metals and Ores Trade', covering Q1 FY27 (April–June 2026). According to the report, what was India's combined merchandise and services trade during Q1 FY27?", options:["USD 406.9 billion","USD 456.9 billion","USD 506.9 billion","USD 566.9 billion"], answer:2},
+
+{q:"According to the 9th Trade Watch Quarterly (TWQ) of NITI Aayog for Q1 FY27, India's merchandise exports stood at USD 129.5 billion, while merchandise imports stood at USD 216.1 billion. What was the resulting merchandise trade deficit?", options:["USD 76.6 billion","USD 86.6 billion","USD 96.6 billion","USD 106.6 billion"], answer:1},
+
+{q:"Dr Jitendra Singh, Union Minister of State (Independent Charge), inaugurated the SPROUT facility at BRIC–National Institute of Plant Genome Research (BRIC-NIPGR), under the Department of Biotechnology (DBT), Ministry of Science & Technology. What does SPROUT stand for?", options:["SpeedSeed Phenotyping and Resource Optimization for Unified Trait Analysis","Seed Processing and Research Optimization for Unified Technology","Speed Plant Research and Optimization for Universal Trait Analysis","Scientific Plant Resource Optimization Using Technology"], answer:0},
+
+{q:"The SPROUT (SpeedSeed Phenotyping and Resource Optimization for Unified Trait Analysis) facility at BRIC-NIPGR is designed for climate-resilient crop research using controlled environments, high-throughput phenotyping and advanced plant-genome research. Initially, which crop is the facility focused on, with SpeedSeed reducing crop cycles to around 40 days?", options:["Wheat","Rice","Chickpea","Maize"], answer:2},
+
+{q:"The Department of Social Justice & Empowerment (DoSJE), Ministry of Social Justice & Empowerment (MoSJE), extended its MoU with The Art of Living under the Nasha Mukt Bharat Abhiyaan (NMBA). What is the primary purpose of this partnership?", options:["Promoting financial literacy among rural households","Substance-abuse prevention, awareness, community mobilisation, value-based living, family resilience and reducing stigma","Providing employment-linked skill training to tribal students","Expanding digital banking services in aspirational districts"], answer:1},
+
+{q:"The National Scheduled Tribes Finance & Development Corporation (NSTFDC) and Hindustan Petroleum Corporation Limited (HPCL) signed an MoU to establish integrated computer labs-cum-smart classrooms in 29 Eklavya Model Residential Schools (EMRSs) across 11 districts of Rajasthan. What is the total investment approved by the HPCL Board for this initiative?", options:["₹12.01 crore","₹14.50 crore","₹16.01 crore","₹18.01 crore"], answer:2},
+{q:"The 40th edition of the Global Financial Centres Index (GFCI 40), released by Z/Yen Partners in collaboration with the China Development Institute (CDI), assessed 139 financial centres using 144 quantitative measures and 39,531 assessments from 6,147 respondents. What was the rank of GIFT City in GFCI 40?", options:["37th","39th","42nd","46th"], answer:0},
+
+{q:"In the 40th Global Financial Centres Index (GFCI 40), GIFT City improved significantly compared with its position in GFCI 39. It was ranked 37th in GFCI 40 after improving by 9 places. What was its rank in GFCI 39?", options:["44th","45th","46th","48th"], answer:2},
+
+{q:"The 40th Global Financial Centres Index (GFCI 40) ranked 139 financial centres, of which 117 were included in the main index and 22 were associate centres. Which city secured the first position globally, followed by London, Hong Kong and Singapore?", options:["Hong Kong","New York","Singapore","London"], answer:1},
+
+{q:"The Global Financial Centres Index (GFCI 40) evaluates financial centres using five broad areas. Which of the following correctly identifies all five areas used in the GFCI methodology?", options:["Business Environment, Human Capital, Infrastructure, Financial Sector Development and Reputation","Business Environment, Digital Banking, Infrastructure, Market Capitalisation and Reputation","Human Capital, Financial Inclusion, Infrastructure, Banking Development and Global Connectivity","Business Environment, Human Capital, Financial Inclusion, Financial Stability and Reputation"], answer:0},
+
+{q:"The National Payments Corporation of India (NPCI) revised the Merchant Discount Rate (MDR) framework for UPI transactions, with the revised framework becoming effective from 15 October 2026. Under this framework, what happens to all Person-to-Person (P2P) UPI transactions?", options:["They attract 0.02% MDR above ₹2,000","They remain free irrespective of the transaction amount","They remain free only up to ₹2,000","They attract a flat ₹5 MDR above ₹2,000"], answer:1},
+
+{q:"Under the revised Merchant Discount Rate (MDR) framework for Unified Payments Interface (UPI) transactions issued by the National Payments Corporation of India (NPCI), P2P and P2M transactions below ₹2,000 remain free for users and merchants. What MDR applies to specified transactions or merchant categories above ₹2,000?", options:["0.02%","0.04%","0.20%","0.40%"], answer:3},
+
+{q:"Under the revised UPI Merchant Discount Rate (MDR) framework effective from 15 October 2026, specified categories including railways, telecom, insurance and fuel attract a flat charge above ₹2,000. What is the applicable charge per transaction?", options:["₹2","₹5","₹10","₹20"], answer:1},
+
+{q:"The National Payments Corporation of India (NPCI) revised the Merchant Discount Rate (MDR) framework for UPI transactions and specified a separate rate for capital-market-related categories such as mutual funds, securities, stockbrokers and dealers. What is the rate and maximum cap applicable to these categories?", options:["0.02%, capped at ₹300","0.04%, capped at ₹500","0.20%, capped at ₹300","0.40%, capped at ₹500"], answer:0},
+
+{q:"The National Stock Exchange (NSE) enabled India's first tokenised corporate bond issuances worth ₹1,000 crore on the NSE Electronic Bidding Platform (NSE EBP) under the Securities and Exchange Board of India (SEBI) Regulatory Sandbox Framework, 2020. Which two companies were the issuers?", options:["REC Ltd and Larsen & Toubro","Power Finance Corporation and REC Ltd","Larsen & Toubro and Tata Steel","REC Ltd and Bharat Electronics Limited"], answer:0},
+
+{q:"India's first tokenised corporate bond issuances worth ₹1,000 crore were enabled on the NSE Electronic Bidding Platform (NSE EBP), with ₹500 crore each issued by REC Ltd and Larsen & Toubro (L&T). What technology enables digital representation and management of securities, atomic settlement, transparency and operational efficiency in these issuances?", options:["Artificial Intelligence (AI)","Distributed Ledger Technology (DLT)","Internet of Things (IoT)","Quantum Computing"], answer:1},
+
+{q:"For India's first tokenised corporate bond issuance enabled on the NSE Electronic Bidding Platform (NSE EBP), REC Ltd issued a base issue of ₹100 crore along with a ₹400 crore greenshoe option. The issue was subscribed 7.9 times and ₹500 crore was accepted at a specified coupon rate. What was the coupon rate?", options:["7.10%","7.25%","7.30%","7.90%"], answer:2},
+
+{q:"The National Academy of Engineering (NAE) named Indian-American computer scientist Sethuraman Panchanathan as the recipient of the Arthur M. Bueche Award 2026. He became the first Indian-American and the first person from Arizona to receive the award. What does the award primarily recognise?", options:["Outstanding contributions to financial technology and banking innovation","Major contributions to science and technology policy","Lifetime achievements in computer hardware manufacturing","Excellence in international diplomatic and technology cooperation"], answer:1},
+
+{q:"The Arthur M. Bueche Award, received by Sethuraman Panchanathan in 2026, was established in 1982 and first awarded in 1983 to Simon Ramo. The award is named after Arthur M. Bueche (1920–1981). What does the annual award presentation include?", options:["A cash prize and a research grant","A commemorative medal and hand-scribed certificate","A gold medal and lifetime NAE fellowship","A commemorative plaque and international fellowship"], answer:1},
+
+{q:"Kamlesh Chandra Varshney, a 1990-batch Indian Revenue Service (Income Tax) officer and former Joint Secretary, Tax Policy & Legislation, Department of Revenue, Ministry of Finance, was reappointed as Whole-Time Member (WTM) of the Securities and Exchange Board of India (SEBI). Until what date will his tenure continue, subject to the stated conditions?", options:["19 September 2027","20 September 2028","4 August 2029","31 March 2030"], answer:2},
+
+{q:"Kamlesh Chandra Varshney joined the Securities and Exchange Board of India (SEBI) as a Whole-Time Member (WTM) on 20 September 2023 and handled departments including Market Intermediaries Regulation & Supervision, Legal Affairs, Integrated Surveillance and Information Technology. Before joining SEBI, which position did he hold in the Department of Revenue, Ministry of Finance?", options:["Secretary, Department of Financial Services","Joint Secretary, Tax Policy & Legislation","Chairman, Central Board of Direct Taxes","Commissioner, Goods and Services Tax"], answer:1},
+
+{q:"Former Union Minister and senior Indian National Congress (INC) leader E.M. Sudarsana Natchiappan, who served in the 13th Lok Sabha from Sivaganga during 1999–2004 and later represented Tamil Nadu in the Rajya Sabha from 2004–2016, passed away at the age of 78. During which period did he serve as Minister of State (MoS), Commerce & Industry?", options:["June 2010–May 2011","June 2012–May 2013","June 2013–May 2014","June 2014–May 2015"], answer:2},
+
+{q:"World Patient Safety Day 2026 was observed by the World Health Organization (WHO) on 17 September to promote patient safety and safer healthcare. The 2026 observance focused on multisectoral and multi-stakeholder action for safe, harm-free care for noncommunicable diseases (NCDs). What was the theme?", options:["Safe care for all patients","Patient Safety: Global Action for Safer Healthcare","Safe care for Noncommunicable Diseases (NCDs)","Quality care for healthier communities"], answer:2},
+
+{q:"International Equal Pay Day 2026 was observed on 18 September as the 7th observance, promoting equal pay for work of equal value and efforts to reduce the gender pay gap. Which UN General Assembly resolution adopted on 18 December 2019 established this observance?", options:["A/RES/72/6","A/RES/73/142","A/RES/74/142","A/RES/75/201"], answer:2},
+
+{q:"Mazagon Dock Shipbuilders Limited (MDL) signed an MoU with the Maharashtra Government to develop a ₹27,000 crore Greenfield Shipbuilding Industrial Cluster at Dighi, Raigad, under the framework of National Shipbuilding and Heavy Industries Park Maharashtra Limited (NSHIPML). What is the planned minimum annual capacity of the cluster for large commercial vessels?", options:["1 million Gross Tonnage (GT) per year","1.2 million Gross Tonnage (GT) per year","2 million Gross Tonnage (GT) per year","2.5 million Gross Tonnage (GT) per year"], answer:2},
+
+{q:"The ₹27,000 crore Greenfield Shipbuilding Industrial Cluster at Dighi, Raigad, Maharashtra, is being developed through National Shipbuilding and Heavy Industries Park Maharashtra Limited (NSHIPML), established by the Maharashtra Maritime Board and Mumbai Port Authority. What will be the role and planned capacity of Mazagon Dock Shipbuilders Limited (MDL) in the project?", options:["Anchor shipyard with around ₹15,000 crore investment and at least 1.2 million GT/year capacity","Lead infrastructure developer with ₹10,000 crore investment and 1 million GT/year capacity","Anchor shipyard with ₹12,000 crore investment and 2 million GT/year capacity","Technology partner with ₹15,000 crore investment and 0.8 million GT/year capacity"], answer:0},
+];
+
+
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 1800;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
